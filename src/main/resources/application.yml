@@ -1,10 +1,18 @@
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: none
+  jpa:      
     show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default-schema: public
   datasource:
-    url: jdbc:mysql://localhost:3306/todolist
-    username: root
+    url: jdbc:postgresql://localhost:5432/mytask
+    username: postgres
     password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
+logging:
+  level:
+    org:
+      springframework:
+        security: TRACE
