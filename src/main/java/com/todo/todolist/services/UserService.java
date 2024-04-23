@@ -30,7 +30,7 @@ public class UserService {
 
 	public UserDto create(CreateUserDto createUserDto) {
 		if (userRepository.findByEmail(createUserDto.email()).isPresent()) {
-			throw new ResourceAlreadyExistedException("User Already existed");
+			throw new ResourceAlreadyExistedException(createUserDto.email() + "was already in use");
 		} else {
 			var user = userMapper.toUser(createUserDto);
 			user.setAvatar("default-avatar.png");
