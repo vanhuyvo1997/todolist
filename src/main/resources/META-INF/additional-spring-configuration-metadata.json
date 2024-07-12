@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "jwt.private-key-file",
+    "type": "java.lang.String",
+    "description": "Private key which is used to sign JWT tokens."
+  },
+  {
+    "name": "jwt.public-key-file",
+    "type": "java.lang.String",
+    "description": "Public key which is used to sign JWT tokens."
+  }
+]}

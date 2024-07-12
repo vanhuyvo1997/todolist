@@ -1,7 +1,7 @@
 package com.todo.todolist.controllers.auth;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,25 +14,29 @@ import com.todo.todolist.services.UserService;
 
 import jakarta.validation.Valid;
 
-@RequestMapping("api/authentication")
+@RequestMapping("api/auth")
 @RestController
 public class AuthenticationController {
-	@Autowired
-	private UserService userService;
+
+	private final UserService userService;
+
+	private final AuthenticationService authService;
 	
-	@Autowired private AuthenticationService authService;
+
 	
+	public AuthenticationController(UserService userService, AuthenticationService authService,
+			AuthenticationManager authenticationManager) {
+		this.userService = userService;
+		this.authService = authService;
+	}
+
 	@PostMapping("register")
 	public ResponseEntity<?> register(@Valid @RequestBody CreateUserDto createUserDto) {
 		return ResponseEntity.ok(userService.create(createUserDto));
 	}
-	
+
 	@PostMapping("login")
-	public ResponseEntity<?> login(@RequestBody LoginDto loginData){
-		// check email
-		// check password
-		// neu hop le thi tra ve refresh và access token
-		// neu không hop le thi quang ngoai le, sao cho tạo thành mã 403;
+	public ResponseEntity<?> login(@RequestBody LoginDto loginData) {			
 		return ResponseEntity.ok(authService.login(loginData));
 	}
 }

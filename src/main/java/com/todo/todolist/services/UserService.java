@@ -3,7 +3,10 @@ package com.todo.todolist.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.todo.todolist.dtos.user.CreateUserDto;
@@ -16,13 +19,13 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
-	@Autowired
 	private final UserRepository userRepository;
 
-	@Autowired
 	private final UserMapper userMapper;
+	
+	private final PasswordEncoder passwordEncoder;
 
 	public List<UserDto> getAll() {
 		return userRepository.findAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
@@ -33,8 +36,16 @@ public class UserService {
 			throw new ResourceAlreadyExistedException(createUserDto.email() + "was already in use");
 		} else {
 			var user = userMapper.toUser(createUserDto);
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
 			user.setAvatar("default-avatar.png");
 			return userMapper.toUserDto(userRepository.save(user));
 		}
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		var optUser = userRepository.findByEmail(username);
+		if(optUser.isPresent()) return optUser.get();
+		throw new UsernameNotFoundException(username + " is not found.");
 	}
 }

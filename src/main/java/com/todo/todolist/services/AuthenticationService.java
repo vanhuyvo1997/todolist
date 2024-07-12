@@ -1,29 +1,37 @@
 package com.todo.todolist.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import com.todo.todolist.dtos.LoginDto;
-import com.todo.todolist.repositories.UserRepository;
+import com.todo.todolist.models.User;
+import com.todo.todolist.utils.TokenUtil;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @Service
 public class AuthenticationService {
-	@Autowired
-	private final UserRepository userRepository;
-
-	@Autowired
-	private final PasswordEncoder passwordEncoder;
+	private final AuthenticationManager authenticationManager;
 
 	public Object login(LoginDto loginData) {
-		var user = userRepository.findByEmail(loginData.email());
-		if (user.isEmpty() || !passwordEncoder.matches(loginData.password(), user.get().getPassword()))
-			throw new UsernameNotFoundException("Not found user with given username and passowrd");
-		return null;
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
+				.unauthenticated(loginData.email(), loginData.password());
+		var authentication = authenticationManager.authenticate(token);
+		
+		var user = (User) authentication.getPrincipal();
+
+		var acccessToken = TokenUtil.generateAccessToken(user);
+		var refreshToken = TokenUtil.generateRefreshToken(user);	
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("accessToken", acccessToken);
+		response.put("refreshToken", refreshToken);
+ 		return response;
 	}
 
 }
